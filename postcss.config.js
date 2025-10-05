@@ -1,5 +1,6 @@
+// v4: используем новый плагин
 export default {
   plugins: {
-    '@tailwindcss/postcss': {},
+    "@tailwindcss/postcss": {}, // больше НИЧЕГО не нужно
   },
 };
