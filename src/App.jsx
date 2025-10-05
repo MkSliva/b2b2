@@ -386,6 +386,11 @@ export default function B2BResellerMVP() {
   const [isLanding, setIsLanding] = useState(true);
   const [theme, setTheme] = useState("dark");
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   // Sanity checks
   useEffect(() => {
     console.assert(typeof AccordionUI === "function", "[SelfTest] AccordionUI should be defined");
@@ -871,78 +876,359 @@ function StepCard({ icon, title, subtitle }) {
     </Card>
   );
 }
-function Metric({ value, label }) {
+function Metric({ value, label, theme }) {
+  const isDark = theme === "dark";
+  const surface = isDark ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white";
+  const valueColor = isDark ? "text-white" : "text-neutral-900";
+  const muted = isDark ? "text-neutral-400" : "text-neutral-500";
   return (
-    <Card className="rounded-2xl bg-white/80 border border-neutral-200 text-neutral-700 backdrop-blur dark:bg-neutral-900/60 dark:border-neutral-800 dark:text-neutral-300">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-2xl">{value}</CardTitle>
-      </CardHeader>
-      <CardContent className="text-sm text-neutral-500 dark:text-neutral-400">{label}</CardContent>
-    </Card>
+    <div className={cls("rounded-3xl p-6 backdrop-blur", surface)}>
+      <div className={cls("text-3xl font-semibold", valueColor)}>{value}</div>
+      <div className={cls("mt-2 text-sm", muted)}>{label}</div>
+    </div>
   );
 }
 
 /** Landing (pre-registration) **/
 function Landing({ theme, setTheme, onStartSeller, onStartManufacturer }) {
-  const t = getThemeTokens(theme);
+  const isDark = theme === "dark";
   return (
-    <div className={cls("min-h-screen w-full bg-gradient-to-b", theme === "dark" ? "from-neutral-950 via-neutral-950 to-neutral-900 text-neutral-50" : "from-white via-neutral-50 to-neutral-100 text-neutral-900")}>
-      <header className="max-w-7xl mx-auto px-6 pt-8 pb-4">
-        <div className="flex items-center justify-between">
+    <div
+      className={cls(
+        "relative min-h-screen w-full overflow-hidden",
+        theme === "dark"
+          ? "bg-neutral-950 text-neutral-100"
+          : "bg-gradient-to-b from-white via-neutral-50 to-neutral-100 text-neutral-900"
+      )}
+    >
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(129,140,248,0.22),_transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(14,165,233,0.12),_transparent_55%)]" />
+      </div>
+
+      <header className="max-w-6xl lg:max-w-7xl mx-auto px-6 pt-10">
+        <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className={cls("h-10 w-10 rounded-2xl grid place-items-center", theme === "dark" ? "bg-neutral-800" : "bg-neutral-200")}>
+            <div
+              className={cls(
+                "h-10 w-10 rounded-2xl grid place-items-center border",
+                theme === "dark" ? "border-white/10 bg-white/5" : "border-neutral-200 bg-white"
+              )}
+            >
               <PlugZap className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">ResellerLink</h1>
-              <p className={cls("text-xs", t.muted)}>Производители → ИП продавцы (WB / Ozon)</p>
+              <p className={cls("text-xs uppercase tracking-[0.3em]", isDark ? "text-neutral-400" : "text-neutral-500")}>ResellerLink</p>
+              <h1 className={cls("text-lg font-semibold tracking-tight", isDark ? "text-neutral-50" : "text-neutral-900")}>Платформа для оптовых поставок</h1>
             </div>
           </div>
+          <nav className={cls("hidden md:flex items-center gap-6 text-sm", isDark ? "text-neutral-300" : "text-neutral-500")}> 
+            <button className={cls("transition", isDark ? "hover:text-white" : "hover:text-neutral-900")}>Как это работает</button>
+            <button className={cls("transition", isDark ? "hover:text-white" : "hover:text-neutral-900")}>Каталог товаров</button>
+            <button className={cls("transition", isDark ? "hover:text-white" : "hover:text-neutral-900")}>Партнёрам</button>
+          </nav>
           <div className="flex items-center gap-2">
-            <Button className="rounded-2xl" variant="ghost" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</Button>
-            <Button className="rounded-2xl" onClick={onStartSeller}><Store className="h-4 w-4 mr-2"/>Я — продавец</Button>
-            <Button className="rounded-2xl" variant="secondary" onClick={onStartManufacturer}><Factory className="h-4 w-4 mr-2"/>Я — производитель</Button>
+            <Button
+              className="rounded-2xl"
+              variant="ghost"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            <Button
+              className={cls(
+                "rounded-2xl",
+                isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-neutral-900 text-white hover:bg-neutral-800"
+              )}
+              variant="secondary"
+            >
+              Войти
+            </Button>
+            <Button className="rounded-2xl" onClick={onStartSeller}>
+              Начать продавать
+            </Button>
           </div>
         </div>
       </header>
 
-      <section className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h2 className="text-4xl font-semibold leading-tight">B2B-платформа для поставщиков и ИП на WB/Ozon</h2>
-            <p className={cls("mt-4", t.muted)}>Готовые карточки, контент‑паки и публикация в один клик. Резерв партий и безопасные сделки.</p>
-            <div className="mt-6 flex gap-3">
-              <Button className="rounded-2xl" onClick={onStartSeller}><Rocket className="h-4 w-4 mr-2"/>Запустить демо</Button>
-              <Button className="rounded-2xl" variant="secondary" onClick={onStartManufacturer}>Я поставщик</Button>
+      <main className="max-w-6xl lg:max-w-7xl mx-auto px-6 pb-20">
+        <section className="pt-16 lg:pt-20 grid lg:grid-cols-[1.1fr,1fr] gap-12 items-center">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div
+                className={cls(
+                  "inline-flex items-center gap-2 rounded-full border px-4 py-1 text-xs",
+                  isDark ? "border-white/10 bg-white/5 text-neutral-300" : "border-neutral-200 bg-white text-neutral-500"
+                )}
+              >
+                <span className={cls("flex h-2 w-2 rounded-full", isDark ? "bg-emerald-400" : "bg-emerald-500")} />
+                Готовые карточки, контент и логистика
+              </div>
+              <h2
+                className={cls(
+                  "text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight",
+                  isDark ? "text-white" : "text-neutral-900"
+                )}
+              >
+                <span className="block">Покупай малыми партиями.</span>
+                <span className={cls("block", isDark ? "text-neutral-300" : "text-neutral-500")}>Публикуй в WB/Ozon в один клик.</span>
+              </h2>
+              <p className={cls("max-w-xl text-base sm:text-lg", isDark ? "text-neutral-400" : "text-neutral-600")}> 
+                Платформа, где производители выкладывают готовые к продаже товары с контентом, а ИП моментально добавляют их в свои магазины.
+              </p>
             </div>
-            <div className="mt-8 grid grid-cols-3 gap-3">
-              <Metric value=">10K" label="SKU в каталоге" />
-              <Metric value="1 клик" label="Публикация на WB/Ozon" />
-              <Metric value="24/7" label="Синк остатков" />
+
+            <div className="flex flex-wrap gap-3">
+              <Button className="rounded-2xl px-6 py-3 text-base" onClick={onStartSeller}>
+                <Search className="mr-2 h-4 w-4" /> Найти товары
+              </Button>
+              <Button
+                className={cls(
+                  "rounded-2xl px-6 py-3 text-base",
+                  isDark ? "bg-white/10 text-white hover:bg-white/15" : "bg-neutral-900 text-white hover:bg-neutral-800"
+                )}
+                variant="secondary"
+                onClick={onStartManufacturer}
+              >
+                <Upload className="mr-2 h-4 w-4" /> Стать поставщиком
+              </Button>
+            </div>
+
+            <ul className={cls("flex flex-wrap items-center gap-3 text-sm", isDark ? "text-neutral-400" : "text-neutral-600")}> 
+              <li className="flex items-center gap-2"><Shield className="h-4 w-4" /> Безопасная сделка</li>
+              <li className="flex items-center gap-2"><PlugZap className="h-4 w-4" /> Интеграция API WB &amp; Ozon</li>
+              <li className="flex items-center gap-2"><Sparkles className="h-4 w-4" /> Контент-паки включены</li>
+            </ul>
+          </div>
+
+          <HeroShowcase theme={theme} />
+        </section>
+
+        <section className="mt-16 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric theme={theme} value="≥1500" label="SKU в каталоге" />
+          <Metric theme={theme} value="5–30 шт." label="Минимальная партия" />
+          <Metric theme={theme} value="&lt; 3 мин" label="Публикация карточки" />
+          <Metric theme={theme} value="2 маркетплейса" label="WB + Ozon синхронно" />
+        </section>
+
+        <section className="mt-20 grid lg:grid-cols-3 gap-6">
+          <LandingFeatureCard
+            theme={theme}
+            icon={<Boxes className="h-5 w-5" />}
+            title="Каталог поставщиков"
+            description="Выбирайте проверенные товары и бронируйте партии онлайн."
+          />
+          <LandingFeatureCard
+            theme={theme}
+            icon={<UploadCloud className="h-5 w-5" />}
+            title="Публикуем малую партию"
+            description="Ценовые правила и авто-обновление остатков без XLS и рутины."
+          />
+          <LandingFeatureCard
+            theme={theme}
+            icon={<ShoppingCart className="h-5 w-5" />}
+            title="Выкуп в MP"
+            description="Подключайте магазины WB/Ozon и получайте готовые карточки."
+          />
+        </section>
+
+        <section
+          className={cls(
+            "mt-20 rounded-3xl p-8 backdrop-blur",
+            isDark ? "border border-white/10 bg-white/5" : "border border-neutral-200 bg-white"
+          )}
+        >
+          <div className="grid lg:grid-cols-[1.2fr,0.8fr] gap-8 items-center">
+            <div className="space-y-4">
+              <h3 className={cls("text-2xl font-semibold", isDark ? "text-white" : "text-neutral-900")}>Как это работает</h3>
+              <p className={cls("text-base", isDark ? "text-neutral-400" : "text-neutral-600")}>
+                Подключите маркетплейсы, выберите товары и запустите продажи с готовым контентом. Система автоматически добавит цену,
+                опубликует карточку и будет синхронизировать остатки.
+              </p>
+              <div className={cls("space-y-3 text-sm", isDark ? "text-neutral-300" : "text-neutral-600")}> 
+                <FeatureStep theme={theme} number="1" title="Подключите WB / Ozon" subtitle="Вставьте API-ключи и выберите склад" />
+                <FeatureStep theme={theme} number="2" title="Выберите товары" subtitle="Фильтрация по марже, категориям и доступности" />
+                <FeatureStep theme={theme} number="3" title="Публикация в 1 клик" subtitle="Мы создаём карточки, резервируем партию и отправляем поставку" />
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-500/30 blur-3xl" />
+              <div
+                className={cls(
+                  "rounded-3xl border p-6 shadow-xl",
+                  isDark
+                    ? "border-white/10 bg-neutral-900/70 shadow-sky-500/20"
+                    : "border-neutral-200 bg-white shadow-sky-100/40"
+                )}
+              >
+                <h4 className={cls("text-lg font-semibold", isDark ? "text-white" : "text-neutral-900")}>Готовый контент-пак</h4>
+                <p className={cls("mt-2 text-sm", isDark ? "text-neutral-400" : "text-neutral-600")}>Фото, SEO, EAC, описание и ключевые слова. Добавьте товар — мы остальное сделаем сами.</p>
+                <div className={cls("mt-6 space-y-3 text-sm", isDark ? "text-neutral-300" : "text-neutral-600")}> 
+                  <InfoChip theme={theme} icon={<ImageIcon />} label="12 фото + 2 видео" />
+                  <InfoChip theme={theme} icon={<Edit3 className="h-4 w-4" />} label="Bullets и SEO на русском" />
+                  <InfoChip theme={theme} icon={<Shield className="h-4 w-4" />} label="Юридический пакет документов" />
+                  <InfoChip theme={theme} icon={<Rocket className="h-4 w-4" />} label="Логистика до маркетплейса" />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
-            <ImageWithFallback className="w-full aspect-video object-cover" alt="Hero" src="https://images.unsplash.com/photo-1524008279394-3aed4643b30b?q=80&w=1600&auto=format&fit=crop" />
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      <section className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="grid md:grid-cols-3 gap-4">
-          <StepCard icon={<Sparkles className="h-5 w-5"/>} title="Готовые карточки" subtitle="Фото, видео, SEO и характеристики включены" />
-          <StepCard icon={<UploadCloud className="h-5 w-5"/>} title="1 клик → WB/Ozon" subtitle="Авто‑публикация и правила цены" />
-          <StepCard icon={<Shield className="h-5 w-5"/>} title="Безопасная сделка" subtitle="Резерв партии и защита от пересечений" />
-        </div>
-      </section>
-
-      <footer className={cls("max-w-7xl mx-auto px-6 pb-10 text-sm", t.muted)}>
-        <div className={cls("pt-6 flex items-center justify-between border-t", t.border)}>
-          <span>© {new Date().getFullYear()} ResellerLink</span>
-          <span className="flex items-center gap-2"><Shield className="h-4 w-4"/>Сделки защищены</span>
+      <footer className="max-w-6xl lg:max-w-7xl mx-auto px-6 pb-10 text-sm">
+        <div
+          className={cls(
+            "mt-12 flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between",
+            isDark ? "border-white/10 text-neutral-400" : "border-neutral-200 text-neutral-500"
+          )}
+        >
+          <span>© {new Date().getFullYear()} ResellerLink — платформа для оптовых продавцов</span>
+          <span className={cls("flex items-center gap-2", isDark ? "text-neutral-300" : "text-neutral-600")}> 
+            <Shield className="h-4 w-4" /> Сделки защищены · Контент-паки включены
+          </span>
         </div>
       </footer>
     </div>
   );
+}
+
+function HeroShowcase({ theme }) {
+  const isDark = theme === "dark";
+  const surface = isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-neutral-200 text-neutral-900";
+  const secondary = isDark ? "text-neutral-300" : "text-neutral-500";
+  const highlight = isDark ? "text-emerald-300" : "text-emerald-600";
+  return (
+    <div className="relative grid gap-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className={cls("rounded-2xl p-4 backdrop-blur", surface)}>
+          <p className={cls("text-xs", secondary)}>Товары для стартов</p>
+          <p className="mt-3 text-lg font-semibold">Проверенные поставщики</p>
+          <div className={cls("mt-4 flex items-center gap-3 text-sm", secondary)}>
+            <span className={cls("rounded-xl px-3 py-1", isDark ? "bg-emerald-500/20 text-emerald-200" : "bg-emerald-100 text-emerald-600")}>≥35% маржа</span>
+            <span className={cls("rounded-xl px-3 py-1", isDark ? "bg-sky-500/20 text-sky-200" : "bg-sky-100 text-sky-600")}>SKU готов</span>
+          </div>
+        </div>
+        <div className={cls("rounded-2xl p-4 text-sm backdrop-blur", surface)}>
+          <div className={cls("flex items-center justify-between", secondary)}>
+            <span>Баланс</span>
+            <span className={cls("text-xs uppercase tracking-[0.2em]", secondary)}>WB</span>
+          </div>
+          <p className="mt-4 text-2xl font-semibold">178 540 ₽</p>
+          <p className={cls("mt-1 text-xs", highlight)}>+28 900 ₽ за 7 дней</p>
+          <div className={cls("mt-4 h-20 overflow-hidden rounded-xl border", isDark ? "border-white/10" : "border-neutral-200")}> 
+            <ImageWithFallback
+              className="h-full w-full object-cover"
+              alt="Ассортимент"
+              src="https://images.unsplash.com/photo-1523475472560-d2df97ec485c?q=80&w=1200&auto=format&fit=crop"
+            />
+          </div>
+        </div>
+      </div>
+      <div className={cls("rounded-3xl border p-4 sm:p-6 backdrop-blur", surface)}>
+        <div className={cls("flex items-center justify-between text-xs", secondary)}>
+          <span>Листинг готов</span>
+          <span className={cls("rounded-xl px-3 py-1", isDark ? "bg-emerald-500/20 text-emerald-200" : "bg-emerald-100 text-emerald-600")}>Авто-синк 24/7</span>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ImageWithFallback
+            className="aspect-video w-full overflow-hidden rounded-2xl object-cover"
+            alt="Hero showcase"
+            src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1600&auto=format&fit=crop"
+          />
+          <div
+            className={cls(
+              "space-y-3 rounded-2xl border p-4 text-sm",
+              isDark
+                ? "border-white/10 bg-neutral-900/70 text-neutral-300"
+                : "border-neutral-200 bg-neutral-50 text-neutral-600"
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <span>Мин. партия</span>
+              <span className="font-semibold text-current">10 шт.</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Опт / шт.</span>
+              <span className="font-semibold text-current">1 290 ₽</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>РРЦ</span>
+              <span className="font-semibold text-current">2 990 ₽</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>SKU в наличии</span>
+              <span className="font-semibold text-current">1 540</span>
+            </div>
+            <Button
+              className={cls(
+                "w-full rounded-xl py-2 text-sm",
+                isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-neutral-900 text-white hover:bg-neutral-800"
+              )}
+              variant="secondary"
+            >
+              В корзину закупки
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LandingFeatureCard({ icon, title, description, theme }) {
+  const isDark = theme === "dark";
+  const surface = isDark ? "border-white/10 bg-white/5 text-white" : "border-neutral-200 bg-white text-neutral-900";
+  const muted = isDark ? "text-neutral-400" : "text-neutral-500";
+  const iconBg = isDark ? "bg-white/10 text-white" : "bg-neutral-100 text-neutral-900";
+  return (
+    <div className={cls("rounded-3xl p-6 backdrop-blur", surface)}>
+      <div className={cls("flex h-12 w-12 items-center justify-center rounded-2xl", iconBg)}>
+        {icon}
+      </div>
+      <h3 className={cls("mt-6 text-lg font-semibold", isDark ? "text-white" : "text-neutral-900")}>{title}</h3>
+      <p className={cls("mt-2 text-sm", muted)}>{description}</p>
+    </div>
+  );
+}
+
+function FeatureStep({ number, title, subtitle, theme }) {
+  const isDark = theme === "dark";
+  return (
+    <div className="flex items-start gap-3">
+      <div
+        className={cls(
+          "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold",
+          isDark
+            ? "border border-white/20 bg-white/10 text-white"
+            : "border border-neutral-200 bg-neutral-100 text-neutral-900"
+        )}
+      >
+        {number}
+      </div>
+      <div>
+        <div className={cls("font-medium", isDark ? "text-white" : "text-neutral-900")}>{title}</div>
+        <div className={cls("text-xs", isDark ? "text-neutral-400" : "text-neutral-500")}>{subtitle}</div>
+      </div>
+    </div>
+  );
+}
+
+function InfoChip({ icon, label, theme }) {
+  const isDark = theme === "dark";
+  const surface = isDark ? "border-white/10 bg-white/5 text-neutral-200" : "border-neutral-200 bg-white text-neutral-700";
+  const accent = isDark ? "text-sky-200" : "text-sky-500";
+  return (
+    <div className={cls("flex items-center gap-3 rounded-2xl px-4 py-2", surface)}>
+      <span className={accent}>{icon}</span>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function ImageIcon() {
+  return <ImageWithFallback className="h-4 w-4 rounded object-cover" alt="Icon" src="https://images.unsplash.com/photo-1523475472560-d2df97ec485c?q=80&w=1200&auto=format&fit=crop" />;
 }
 
 function DevSelfTests() {
