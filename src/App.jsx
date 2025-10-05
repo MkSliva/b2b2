@@ -386,6 +386,11 @@ export default function B2BResellerMVP() {
   const [isLanding, setIsLanding] = useState(true);
   const [theme, setTheme] = useState("dark");
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   // Sanity checks
   useEffect(() => {
     console.assert(typeof AccordionUI === "function", "[SelfTest] AccordionUI should be defined");
